@@ -1,0 +1,73 @@
+#Instalando e carregando um pacote (se necessário)
+if (!require(Pacote)) install.packages("Pacote")
+library(Pacote)
+
+# Carregando o banco de dados birthwt (por exemplo)
+data("birthwt")
+
+# Visualizando as primeiras linhas do banco de dados(exemplo)
+head(birthwt)
+
+#comando para fazer moda
+get_mode <- function(x) {
+  uniqx <- unique(x)
+  uniqx[which.max (tabulate(match(x, uniqx)))]
+}
+
+#para conseguir moda de uma variavel especifica, exemplo:
+get_mode(NomeDoBancoDeDados$variavel)
+get_mode(PimaIndiansDiabetes$mass)
+
+#para fazer media
+mean(BancoDeDados$variavel)
+#Calculando a média do peso ao nascer de um banco de dados, exemplo:
+media_bwt <- mean(birthwt$bwt)/1000
+cat("Média do peso ao nascer =", media_bwt,"kg")
+# o media_ btw <- serve para colocar um nome no resultado da conta que faremos ( que é a media)
+# o cat serve para o resultado aparecer de forma mais "limpa", ao inves de receber uma linha com "[1]2.944587", vai aparecer uma linha dizendo "Média do peso ao nascer = 2.944587 kg"
+
+#para fazer mediana
+median(BancoDeDados$variavel)
+
+# Criando um gráfico de dispersão simples 
+plot((BancoDeDados$variavel1), BancoDeDados$variave2,
+main = "titulo do grafico, variavel1 vs. variave2",
+xlab = "variavel1",
+ylab = "variave2",
+pch = 16,
+col = "darkblue")
+#pch serve para escolher o tipo de ponto do grafico, 16 e 20 são muito bons
+
+# exemplo criando um gráfico de dispersão simples entre a idade da mãe e o peso ao nascer
+plot((birthwt$bwt/1000), birthwt$age,
+main = "Dispersão: Peso ao Nascer vs. Idade Materna",
+xlab = "Peso ao Nascer (kg)",
+ylab = "Idade da Mãe (anos)",
+pch = 8,
+col = "darkblue")
+
+# Criando um gráfico de dispersão com linhas para média, mediana e moda
+plot((birthwt$bwt/1000), birthwt$age,
+main = "Dispersao com medidas de resumo:Peso ao Nascer vs. Idade Materna",
+xlab = "Peso ao Nascer (kg)",
+ylab = "Idade da Mae (anos)",
+pch = 4,
+col = "purple",
+xlim = c(1.5, 5), # Ajuste dos limites do eixo x para melhor visualização
+xaxt = "n") # Remove as marcações automáticas do eixo x
+# Inserindo marcas personalizadas no eixo x com maior granularidade
+axis(side = 1, at = seq(1.5, 5.5, by = 0.3), las = 2)
+# Adicionando linhas de referência para média, mediana e moda
+abline(v = media_bwt, col = "red", lwd = 2, lty = 2) # Média
+abline(v = mediana_bwt, col = "green", lwd = 2, lty = 2) # Mediana
+abline(v = moda_bwt, col = "blue", lwd = 2, lty = 2) # Moda
+# Adicionando legenda
+legend("topright",
+legend = c("Media", "Mediana", "Moda"),
+col = c("red", "darkgreen", "darkblue"),
+lty = 2,
+lwd = 2,
+bty = "n")
+#Ity,lwd,bty é para escolher a formataçao do texto
+
+
