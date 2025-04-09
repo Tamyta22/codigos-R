@@ -70,4 +70,184 @@ lwd = 2,
 bty = "n")
 #Ity,lwd,bty é para escolher a formataçao do texto
 
+#para separar as variaveis em categorias, exemplo:
+BancoDeDados$categoria_especifica <- cut(BancoDeDados$categoria, breaks = (0, 10, 20. 30, 40),
+labels = c("20", "21-25", "26-30", "31-35", ">35"))#categorias que vc quer separar
+birthwt$faixa_idade <- cut(birthwt$age, breaks = c(0, 20, 25, 30, 35, 50),
+labels = c("20", "21-25", "26-30", "31-35", ">35"))
+
+#fazer um boxplot com essas categorias separadas:
+boxplot((bwt/1000) ~ faixa_idade, data = birthwt,
+main = "Boxplot do Peso ao Nascer por Faixa Etária Materna",
+xlab = "Faixa Etária da Mãe",
+ylab = "Peso ao Nascer (kg)",
+col = c("lightblue", "lightgreen", "orange", "pink", "lavender"),
+border = "darkgray")
+
+# Calculando a média do peso ao nascer por faixa etária
+media_por_faixa <- aggregate(bwt ~ faixa_idade, data = birthwt,
+FUN = function(x) round(mean(x)/1000, 2))
+# é utilizado para calcular estatísticas resumidas (neste caso, a média)
+# de uma variável agrupada por categorias de outra variável.
+colnames(media_por_faixa) <- c("Faixa Etária", "Média do Peso ao Nascer (kg)")
+# colnames - renomeia as colunas do resultado para deixá-las mais legíveis
+media_por_faixa
+#MEU JEITO
+tapply(Dados$variavel, Dados$categoria_especifica, mean)
+tapply(birthwt$bwt, birthwt$faixa_idade, mean)/1000
+
+
+#CRIANDO VARIAVEIS 1 e 0
+# Criando variável de baixo peso (1 se <2.5 kg, 0 caso contrário)
+birthwt$baixo_peso <- ifelse(birthwt$bwt < 2500, 1, 0)
+#Baixo_Peso = 0: bebês com peso normal (2,5 kg)
+#Baixo_Peso = 1: bebês com baixo peso (<2,5 kg)
+
+# Calculando frequência de baixo peso por faixa etária
+tabela_baixo_peso <- table(Faixa_Etária = birthwt$faixa_idade,
+Baixo_Peso = birthwt$baixo_peso)
+ftable(tabela_baixo_peso)
+
+
+# Calculando a AMPLITUDE
+amplitude_dados <- max(dados$variavel) - min(dados$variavel)
+#Calculando a amplitude do peso ao nascer, exemplo:
+amplitude_bwt <- max(birthwt$bwt/1000) - min(birthwt$bwt/1000)
+cat("Amplitude =", amplitude_bwt,"kg")
+
+
+# Calculando a variância e o desvio padrão
+desvio_padrao_bwt <- sd(birthwt$bwt/1000)
+variancia_bwt <- var(birthwt$bwt/1000)
+cat("variância =", variancia_bwt,"kg \n")
+cat("desvio padrao =", desvio_padrao_bwt,"kg)
+
+# Calculando o coeficiente de variação
+coef_var_bwt <- (desvio_padrao_bwt / media_bwt)*100
+cat("CV =", round(coef_var_bwt, 2),"%")
+
+#fazer um histograma com curva normal
+# Criando um vetor de valores para o eixo x
+x_values <- seq(min(birthwt$bwt / 1000), max(birthwt$bwt / 1000), length = 200)
+# Calculando a densidade da distribuição normal com média e desvio padrão dos dados
+normal_curve <- dnorm(x_values, mean = media_bwt, sd = desvio_padrao_bwt)
+# Ajustando o limite superior do eixo y com base no pico da curva normal
+max_density <- max(normal_curve) * 1.2 # Adicionando uma margem de 20%
+# Criando um histograma do peso ao nascer
+hist(birthwt$bwt/1000,
+main = "Histograma do Peso ao Nascer",
+xlab = "Peso (kg)",
+ylab = "Frequência",
+col = "lightblue",
+border = "black",
+probability = TRUE,
+ylim = c(0, max_density))
+# Adicionando linhas de referência para média, mediana e moda
+abline(v = media_bwt, col = "red", lwd = 2, lty = 2) # Média
+abline(v = mediana_bwt, col = "green", lwd = 2, lty = 2) # Mediana
+abline(v = moda_bwt, col = "blue", lwd = 2, lty = 2) # Moda
+# Adicionando a curva normal ao histograma - falaremos sobre isso na próxima aula
+lines(x_values, normal_curve, col = "darkred", lwd = 2, lty = 1)
+# Adicionando legenda
+legend("topright",
+legend = c("Curva Normal", "Média", "Mediana", "Moda"),
+col = c("darkred", "red", "green", "blue"),
+lty = c(1, 2, 2, 2),
+lwd = 2,
+bty = "n")
+
+# Criando um boxplot do peso ao nascer
+boxplot(birthwt$bwt/1000,
+main = "Boxplot do Peso ao Nascer",
+ylab = "Peso (Kg)",
+col = "lightgreen")
+
+# Criando uma tabela de contingência entre consultas e baixo peso
+table_ftv_low <- table(Consultas = birthwt$ftv, Baixo_Peso = birthwt$low)
+# A função table() cria uma tabela de contingência entre duas variáveis
+# categóricas.
+# Consultas = birthwt$ftv: agrupa os dados pelo número de consultas pré-natais (ftv).
+# Baixo_Peso = birthwt$low: classifica os bebês com base na variável baixo peso (low), onde:
+# 0: Peso normal (2,5 kg)
+# 1: Baixo peso (<2,5 kg)
+table_ftv_low
+
+# Calculando a frequência absoluta e relativa para cada número de consultas
+# Frequência absoluta: valores já obtidos com table()
+# Frequência relativa: proporção de baixo peso em relação ao total de cada linha
+# Calculando o total de casos por número de consultas
+total_por_consultas <- rowSums(table_ftv_low)
+# Calculando a frequência relativa (%) de baixo peso
+freq_relativa <- round((table_ftv_low[, "1"] / total_por_consultas) * 100, 1)
+# Criando um data frame com as frequências
+resultado <- data.frame(
+Consultas = rownames(table_ftv_low),
+Peso_Normal = table_ftv_low[, "0"],
+Baixo_Peso = table_ftv_low[, "1"],
+Total = total_por_consultas,
+Freq_Relativa_Baixo_Peso = paste0(freq_relativa, "%")
+)
+# Exibindo a tabela com frequências absoluta e relativa
+print(resultado)
+
+#Para explorar as relações entre idade, número de consultas e baixo peso ao nascer, vamos calcular medidas
+de tendência central e dispersão separando os dados com base na variável low (0 = sem baixo peso, 1 = com
+baixo peso).
+
+# Separando as idades das mães conforme o status de baixo peso
+dados_sem_baixo_peso <- subset(birthwt, low == 0)
+dados_com_baixo_peso <- subset(birthwt, low == 1)
+# Calculando medidas de resumo para idade
+resumo_idade_sem <- summary(dados_sem_baixo_peso$age)
+resumo_idade_com <- summary(dados_com_baixo_peso$age)
+
+# Resumo do número de consultas pré-natais conforme status de baixo peso
+resumo_consultas_sem <- summary(dados_sem_baixo_peso$ftv)
+resumo_consultas_com <- summary(dados_com_baixo_peso$ftv)
+
+#Medidas de Resumo do Peso ao Nascer
+# Resumo do peso ao nascer conforme status de baixo peso
+resumo_peso_sem <- summary(dados_sem_baixo_peso$bwt)
+resumo_peso_com <- summary(dados_com_baixo_peso$bwt)
+
+# Boxplot da idade das maes conforme o baixo peso ao nascer
+boxplot(age ~ low, data = birthwt,
+main = "Idade Materna e Baixo Peso ao Nascer",
+xlab = "Baixo Peso (0 = Nao, 1 = Sim)",
+ylab = "Idade da Mae (anos)",
+col = c("lightgreen", "lightcoral"),
+names = c("Sem Baixo Peso", "Com Baixo Peso"))
+
+# Boxplot do número de consultas conforme o baixo peso ao nascer
+boxplot(ftv ~ low, data = birthwt,
+main = "Consultas Pré-Natais e Baixo Peso ao Nascer",
+xlab = "Baixo Peso (0 = Não, 1 = Sim)",
+ylab = "Número de Consultas",
+col = c("lightblue", "orange"),
+names = c("Sem Baixo Peso", "Com Baixo Peso"))
+
+#Gráfico de Dispersão: Idade Materna vs. Número de Consultas (Colorido
+por Baixo Peso)
+# Dispersão com cores indicando o baixo peso
+plot(birthwt$age, birthwt$ftv,
+col = ifelse(birthwt$low == 1, "red", "blue"),
+pch = 19,
+main = "Dispersão: Idade Materna vs. Número de Consultas",
+xlab = "Idade da Mãe (anos)",
+ylab = "Número de Consultas")
+legend("topright",
+legend = c("Com Baixo Peso", "Sem Baixo Peso"),
+col = c("red", "blue"),
+pch = 19,
+bty = "n")
+
+#Tabela de Frequência Cruzada: Idade e Consultas por Baixo peso
+# Criando faixas etárias para análise categórica
+birthwt$faixa_idade <- cut(birthwt$age, breaks = c(0, 20, 25, 30, 35, 50),
+labels = c("<=20", "21-25", "26-30", "31-35", ">35"))
+# Criando tabela de contingência
+freq_table <- table(Faixa_Idade = birthwt$faixa_idade, Consultas = birthwt$ftv,
+Baixo_Peso = birthwt$low)
+ftable(freq_table)
+
 
